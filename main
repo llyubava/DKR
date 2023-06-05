@@ -1,0 +1,130 @@
+#include <iostream>
+#include <cmath>
+#include <fstream>
+
+// Оголошення класу ComplexNumber
+class ComplexNumber {
+private:
+    double real;
+    double imaginary;
+
+public:
+    // Конструктор за замовчуванням, який приймає реальну та уявну частини (за необхідності)
+    ComplexNumber(double real = 0.0, double imaginary = 0.0)
+        : real(real), imaginary(imaginary) {}
+
+    // Методи set для реальної та уявної частин
+    void setReal(double real) {
+        this->real = real;
+    }
+
+    void setImaginary(double imaginary) {
+        this->imaginary = imaginary;
+    }
+
+    // Методи get для реальної та уявної частин
+    double getReal() const {
+        return real;
+    }
+
+    double getImaginary() const {
+        return imaginary;
+    }
+
+    // Метод для обчислення модуля комплексного числа
+    double calculateMagnitude() const {
+        return std::sqrt(real * real + imaginary * imaginary);
+    }
+
+    // Метод, що повертає рядкове представлення комплексного числа
+    std::string toString() const {
+        return std::to_string(real) + " + " + std::to_string(imaginary) + "i";
+    }
+
+    // Перевантажений оператор + для додавання двох комплексних чисел
+    ComplexNumber operator+(const ComplexNumber& other) const {
+        double sumReal = real + other.real;
+        double sumImaginary = imaginary + other.imaginary;
+        return ComplexNumber(sumReal, sumImaginary);
+    }
+
+    // Дружня функція, що перевантажує оператор << для виводу комплексного числа на консоль
+    friend std::ostream& operator<<(std::ostream& os, const ComplexNumber& number) {
+        os << number.toString();
+        return os;
+    }
+
+    // Метод для шифрування рядка на основі зсуву символів
+    std::string encrypt(const std::string& input) const {
+        std::string encrypted = input;
+        for (char& c : encrypted) {
+            c += 1; // зсув на один символ вправо
+        }
+        return encrypted;
+    }
+
+    // Метод для дешифрування рядка на основі зсуву символів
+    std::string decrypt(const std::string& input) const {
+        std::string decrypted = input;
+        for (char& c : decrypted) {
+            c -= 1; // зсув на один символ вліво
+        }
+        return decrypted;
+    }
+
+    // Метод для збереження даних об'єкта у файл з шифруванням
+    void saveToFile(const std::string& filename) const {
+        std::ofstream file(filename);
+        if (file.is_open()) {
+            file << encrypt(toString()) << std::endl;
+            file.close();
+        }
+    }
+};
+
+// Оголошення класу Logger
+class Logger {
+private:
+    std::ofstream logfile;
+
+public:
+    // Конструктор, що відкриває файл для запису
+    Logger(const std::string& filename) {
+        logfile.open(filename);
+    }
+
+    // Деструктор, що закриває файл
+    ~Logger() {
+        logfile.close();
+    }
+
+    // Метод для запису повідомлення у файл
+    void log(const std::string& message) {
+        logfile << message << std::endl;
+    }
+};
+
+// Функція main
+int main() {
+    // Створення двох об'єктів класу ComplexNumber зі значеннями (1, 3) і (-1, 2) відповідно
+    ComplexNumber number1(1, 3);
+    ComplexNumber number2(-1, 2);
+
+    // Додавання двох комплексних чисел та обчислення модуля суми
+    ComplexNumber sum = number1 + number2;
+    double sumMagnitude = sum.calculateMagnitude();
+
+    // Виведення модуля суми на консоль
+    std::cout << "Sum Magnitude: " << sumMagnitude << std::endl;
+
+    // Створення об'єкта класу Logger для запису важливих моментів роботи програми
+    Logger logger("log.txt");
+
+    // Запис обчисленого модуля суми у файл "log.txt"
+    logger.log("Computed sum magnitude: " + std::to_string(sumMagnitude));
+
+    // Збереження даних об'єкта sum у файл "complex.txt" з шифруванням
+    sum.saveToFile("complex.txt");
+
+    return 0;
+}
